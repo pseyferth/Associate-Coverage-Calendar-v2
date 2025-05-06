@@ -58,6 +58,17 @@ export default function TeamCalendar() {
     link.click();
   };
 
+  const countAssignments = () => {
+    const counts = {};
+    Object.values(schedule).forEach((person) => {
+      if (!counts[person]) counts[person] = 0;
+      counts[person] += 1;
+    });
+    return counts;
+  };
+
+  const assignmentCounts = countAssignments();
+
   return (
     <div className="max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">Portfolio and Fund Coverage Scheduler</h1>
@@ -97,7 +108,17 @@ export default function TeamCalendar() {
             </div>
           ))}
         </div>
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold mb-2">Assignments Summary</h3>
+          <ul className="text-gray-800">
+            {associates.map((person) => (
+              <li key={person}>{person}: {assignmentCounts[person] || 0} weeks</li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );
+}
+
 }
