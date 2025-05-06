@@ -33,15 +33,28 @@ export default function TeamCalendar() {
 
   const generateSchedule = () => {
     const newSchedule = {};
-    weeks.forEach((week) => {
-      const candidates = associates
-        .filter((person) => availability[person]?.[week] === 'NO ISSUES')
-        .concat(
-          associates.filter((person) => availability[person]?.[week] === 'SUBOPTIMAL')
-        );
+    const assignmentCounts = { Paul: 0, Nnamdi: 0, Peyton: 0 };
 
-      newSchedule[week] = candidates.length > 0 ? candidates[0] : 'Unassigned';
+    weeks.forEach((week) => {
+      const weekAvailability = associates.map((person) => ({
+        person,
+        status: availability[person]?.[week] || '',
+        count: assignmentCounts[person],
+      }));
+
+      const eligible = weekAvailability.filter(a => a.status !== 'DNS');
+
+      const sorted = (eligible.length > 0 ? eligible : weekAvailability).sort((a, b) => {
+        if (a.count !== b.count) return a.count - b.count;
+        const priority = { 'NO ISSUES': 0, 'SUBOPTIMAL': 1, 'DNS': 2 };
+        return priority[a.status] - priority[b.status];
+      });
+
+      const assigned = sorted[0]?.person || 'Unassigned';
+      newSchedule[week] = assigned;
+      if (assigned !== 'Unassigned') assignmentCounts[assigned] += 1;
     });
+
     setSchedule(newSchedule);
   };
 
@@ -121,4 +134,3 @@ export default function TeamCalendar() {
   );
 }
 
-}
